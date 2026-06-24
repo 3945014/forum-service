@@ -28,22 +28,27 @@ export const updateUser = async (login, updateData) => {
 }
 
 export const changeRoles = async (login, role, isAddRole) => {
+    role = role.toUpperCase();
+    let userAccount;
     if (isAddRole) {
-        const userAccount = await userAccountRepository.addRole(login, role);
-        if(!userAccount) {
-            throw new Error(`User with login ${login} not found`);
-        }
-        return userAccount;
+        userAccount = await userAccountRepository.addRole(login, role);
     } else {
-        const userAccount = await userAccountRepository.deleteRole(login, role);
-        if(!userAccount) {
-            throw new Error(`User with login ${login} not found`);
-        }
-        return userAccount;
+        userAccount = await userAccountRepository.removeRole(login, role);
     }
+    if (!userAccount) {
+        throw new Error(`User with login '${login}' not found`);
+    }
+    //const {firstName, lastName, ...userRoles} = userAccount.toObject();
+    return userRoles;
 }
 
-export const changePassword = async (login, newPassword) => await userAccountRepository.changePassword(login, newPassword);
+export const changePassword = async (login, newPassword) => {
+    const userAccount = await userAccountRepository.changePassword(login, newPassword);
+    if (!userAccount) {
+        throw new Error(`User with login '${login}' not found`);
+    }
+    return userAccount;
+}
 
 export const getUser = async (login) => {
     const userAccount = await userAccountRepository.findUser(login);
